@@ -5,4 +5,8 @@ class AppConstant{
 
   //Image path
   static const String BANNER_1 = "assets/images/banner_1.jpg";
+
+
+  // host name
+  static const String BASE_URL = "https://appsale.herokuapp.com/";
 }
