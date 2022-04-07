@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_app_sale19022022/common/app_constant.dart';
+import 'package:flutter_app_sale19022022/data/remote/request/authentication_request.dart';
+import 'package:flutter_app_sale19022022/data/repository/authentication_repository.dart';
+import 'package:flutter_app_sale19022022/presentation/features/login/bloc/login_bloc.dart';
+import 'package:flutter_app_sale19022022/presentation/features/login/bloc/login_event.dart';
+import 'package:flutter_app_sale19022022/presentation/features/login/bloc/login_state.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key}) : super(key: key);
@@ -12,7 +19,22 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
-    return LoginContainer();
+    return MultiProvider(
+      providers: [
+        Provider(create: (context) => AuthenticationRequest()),
+        ProxyProvider<AuthenticationRequest, AuthenticationRepository>(
+          create: (context) => AuthenticationRepository(),
+          update: (context, request, repository) {
+            repository!.updateAuthenticationRepository(request: request);
+            return repository;
+          },
+        )
+      ],
+      child: BlocProvider<LoginBloc>(
+        create: (context) => LoginBloc(repository: context.read<AuthenticationRepository>()),
+        child: LoginContainer(),
+      ),
+    );
   }
 }
 
@@ -30,6 +52,14 @@ class _LoginContainerState extends State<LoginContainer> {
 
   var isPassVisible = true;
 
+  late LoginBloc _bloc;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _bloc = context.read<LoginBloc>();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,45 +69,64 @@ class _LoginContainerState extends State<LoginContainer> {
         body: Container(
           color: Colors.white,
           child: SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                SliverFillRemaining(
-                  hasScrollBody: true,
-                  child: Stack(
-                    fit: StackFit.loose,
-                    children: [
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Expanded(
-                              flex: 2,
-                              child: Image.asset(AppConstant.BANNER_1)),
-                          Expanded(
-                            flex: 4,
-                            child: Container(
-                              child: Column(
+            child: BlocConsumer<LoginBloc,LoginState>(
+              listener: (context , state){
+                  if(state.status == LoginStatus.loginSuccess){
+                    print("Dag nhap thanh cong");
+                  }
+                  if(state.status == LoginStatus.loginFail){
+                    print(state.message);
+                  }
+              },
+              builder: (context , state){
+                return Stack(
+                  children: [
+                    CustomScrollView(
+                      slivers: [
+                        SliverFillRemaining(
+                          hasScrollBody: true,
+                          child: Stack(
+                            fit: StackFit.loose,
+                            children: [
+                              Column(
                                 mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  _buildPhoneTextField(),
-                                  _buildPasswordTextField(),
-                                  _buildButtonSignIn(),
+                                  Expanded(
+                                      flex: 2,
+                                      child: Image.asset(AppConstant.BANNER_1)),
+                                  Expanded(
+                                    flex: 4,
+                                    child: Container(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          _buildPhoneTextField(),
+                                          _buildPasswordTextField(),
+                                          _buildButtonSignIn(),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(child: _buildTextSignUp()),
                                 ],
-                              ),
-                            ),
+                              )
+                            ],
                           ),
-                          Expanded(child: _buildTextSignUp()),
-                        ],
-                      )
-                    ],
-                  ),
-                )
-              ],
+                        )
+                      ],
+                    ),
+                    if(state.status == LoginStatus.loading)
+                      Center(child: CircularProgressIndicator())
+                  ],
+                );
+              },
             ),
           ),
         ));
   }
+
 
   Widget _buildTextSignUp() {
     return Container(
@@ -158,7 +207,12 @@ class _LoginContainerState extends State<LoginContainer> {
     return Container(
         margin: EdgeInsets.only(top: 20),
         child: ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            String email = _emailController.text.toString();
+            String password = _passController.text.toString();
+
+            _bloc.add(LoginEvent(email: email, password: password));
+          },
           child: Text("Sign In"),
         ));
   }
