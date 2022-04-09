@@ -1,6 +1,7 @@
 class AppConstant{
   // Name route
   static const String LOGIN_ROUTE_NAME = "/login";
+  static const String SIGNUP_ROUTE_NAME = "/sign-up";
 
 
   //Image path

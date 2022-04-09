@@ -138,7 +138,9 @@ class _LoginContainerState extends State<LoginContainer> {
           children: [
             Text("Don't have an account!"),
             InkWell(
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, AppConstant.SIGNUP_ROUTE_NAME);
+              },
               child: Text("Sign Up",
                   style: TextStyle(
                       color: Colors.red, decoration: TextDecoration.underline)),

@@ -21,7 +21,7 @@ class LoginBloc extends Bloc<LogInEventBase, LoginState> {
         if(e.response != null){
           emit(LoginState.loginFail(message: e.response!.data['message'].toString()));
         }else{
-          emit(LoginState.loginFail(message: e.error));
+          emit(LoginState.loginFail(message: e.toString()));
         }
       }catch (e) {
         emit(LoginState.loginFail(message: e.toString()));
