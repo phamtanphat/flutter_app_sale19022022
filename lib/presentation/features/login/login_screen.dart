@@ -6,6 +6,7 @@ import 'package:flutter_app_sale19022022/data/repository/authentication_reposito
 import 'package:flutter_app_sale19022022/presentation/features/login/bloc/login_bloc.dart';
 import 'package:flutter_app_sale19022022/presentation/features/login/bloc/login_event.dart';
 import 'package:flutter_app_sale19022022/presentation/features/login/bloc/login_state.dart';
+import 'package:flutter_app_sale19022022/presentation/widget/loading_widget.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
@@ -118,7 +119,7 @@ class _LoginContainerState extends State<LoginContainer> {
                       ],
                     ),
                     if(state.status == LoginStatus.loading)
-                      Center(child: CircularProgressIndicator())
+                      Center(child: LoadingWidget())
                   ],
                 );
               },

@@ -18,7 +18,11 @@ class LoginBloc extends Bloc<LogInEventBase, LoginState> {
         AppResponse<UserResponse> userResponse = AppResponse.fromJson(response.data, UserResponse.formJson);
         emit(LoginState.loginSuccess(userResponse: userResponse.data));
       } on DioError catch(e){
-        emit(LoginState.loginFail(message: e.response!.data['message'].toString()));
+        if(e.response != null){
+          emit(LoginState.loginFail(message: e.response!.data['message'].toString()));
+        }else{
+          emit(LoginState.loginFail(message: e.error));
+        }
       }catch (e) {
         emit(LoginState.loginFail(message: e.toString()));
       }
