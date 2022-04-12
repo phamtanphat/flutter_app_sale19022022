@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SignUpBloc extends Bloc<SignUpEventBase,SignUpState>{
   late AuthenticationRepository _repository;
-
   SignUpBloc({required AuthenticationRepository repository}) : super(SignUpState.initial()){
     this._repository = repository;
 
