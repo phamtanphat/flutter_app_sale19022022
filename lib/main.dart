@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         AppConstant.SIGNUP_ROUTE_NAME : (context) => SignUpScreen(),
         AppConstant.SPLASH_ROUTE_NAME : (context) => SplashScreen(),
       },
-      initialRoute: AppConstant.LOGIN_ROUTE_NAME,
+      initialRoute: AppConstant.SPLASH_ROUTE_NAME,
     );
   }
 }

@@ -7,6 +7,7 @@ class AppConstant{
 
   //Image path
   static const String BANNER_1 = "assets/images/banner_1.jpg";
+  static const String IMG_SPLASH = "assets/images/img_splash.jpg";
 
   //Animation path
   static const String ANIMATION_SPLASH = "assets/animations/animation_splash.json";
