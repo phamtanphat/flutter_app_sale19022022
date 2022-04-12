@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_app_sale19022022/data/model/request/login_request.dart';
+import 'package:flutter_app_sale19022022/data/model/request/sign_up_request.dart';
 import 'package:flutter_app_sale19022022/data/remote/client/dio_client.dart';
 
 class AuthenticationRequest{
@@ -14,5 +15,9 @@ class AuthenticationRequest{
 
   Future<Response> loginRequest(LoginRequest loginRequest){
     return _dio.post("user/sign-in" , data: loginRequest.toJson());
+  }
+
+  Future<Response> signUpRequest(SignUpRequest signUpRequest){
+    return _dio.post("user/sign-up" , data: signUpRequest.toJson());
   }
 }

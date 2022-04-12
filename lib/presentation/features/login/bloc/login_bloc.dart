@@ -14,6 +14,7 @@ class LoginBloc extends Bloc<LogInEventBase, LoginState> {
     on<LoginEvent>((event, emit) async {
       emit(LoginState.loading());
       try {
+
         Response response = await _repository.loginRepo(event.email, event.password);
         AppResponse<UserResponse> userResponse = AppResponse.fromJson(response.data, UserResponse.formJson);
         emit(LoginState.loginSuccess(userResponse: userResponse.data));

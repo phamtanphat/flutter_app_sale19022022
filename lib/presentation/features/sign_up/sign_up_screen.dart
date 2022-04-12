@@ -1,17 +1,34 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_app_sale19022022/common/app_constant.dart';
+import 'package:flutter_app_sale19022022/data/remote/request/authentication_request.dart';
+import 'package:flutter_app_sale19022022/data/repository/authentication_repository.dart';
+import 'package:flutter_app_sale19022022/presentation/features/sign_up/bloc/sign_up_bloc.dart';
+import 'package:flutter_app_sale19022022/presentation/features/sign_up/bloc/sign_up_event.dart';
+import 'package:flutter_app_sale19022022/presentation/features/sign_up/bloc/sign_up_state.dart';
+import 'package:flutter_app_sale19022022/presentation/widget/loading_widget.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
-class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
-
-  @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
-}
-
-class _SignUpScreenState extends State<SignUpScreen> {
+class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SignUpContainer();
+    return MultiProvider(
+        providers: [
+          Provider(create: (context) => AuthenticationRequest()),
+          ProxyProvider<AuthenticationRequest, AuthenticationRepository>(
+            create: (context) => AuthenticationRepository(),
+            update: (context, request, repository) {
+              repository!.updateAuthenticationRepository(request: request);
+              return repository;
+            },
+          )
+        ],
+      child: BlocProvider<SignUpBloc>(
+        create: (context) => SignUpBloc(repository: context.read<AuthenticationRepository>()),
+        child: SignUpContainer(),
+      ),
+    );
   }
 }
 
@@ -30,55 +47,82 @@ class _SignUpContainerState extends State<SignUpContainer> {
   final _emailController = TextEditingController();
   final _addressController = TextEditingController();
 
+  late SignUpBloc _bloc;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _bloc = context.read<SignUpBloc>();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Sign Up"),
       ),
-      body: SafeArea(
-        child: Container(
-          color: Colors.white,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                  flex: 2,
-                  child: Image.asset(AppConstant.BANNER_1)),
-              Expanded(
-                  flex: 4,
-                  child: LayoutBuilder(
-                    builder: (context, constraint) {
-                      return SingleChildScrollView(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                              minHeight: constraint.maxHeight),
-                          child: IntrinsicHeight(
-                            child: Column(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceEvenly,
-                              children: [
-                                _buildDisplayTextField(),
-                                SizedBox(height: 10),
-                                _buildAddressTextField(),
-                                SizedBox(height: 10),
-                                _buildEmailTextField(),
-                                SizedBox(height: 10),
-                                _buildPhoneTextField(),
-                                SizedBox(height: 10),
-                                _buildPasswordTextField(),
-                                SizedBox(height: 10),
-                                _buildButtonSignUp()
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  )),
-            ],
-          ),
-        ),
+      body: BlocConsumer<SignUpBloc,SignUpState>(
+        listener: (context , state){
+          if(state.status == SignUpStatus.success){
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Dang ky thanh cong")));
+            Navigator.pop(context);
+          }
+          if (state.status == SignUpStatus.fail){
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message.toString())));
+          }
+        },
+        builder: (context , state){
+          return SafeArea(
+            child: Container(
+              color: Colors.white,
+              child: Stack(
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                          flex: 2,
+                          child: Image.asset(AppConstant.BANNER_1)),
+                      Expanded(
+                          flex: 4,
+                          child: LayoutBuilder(
+                            builder: (context, constraint) {
+                              return SingleChildScrollView(
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                      minHeight: constraint.maxHeight),
+                                  child: IntrinsicHeight(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        _buildDisplayTextField(),
+                                        SizedBox(height: 10),
+                                        _buildAddressTextField(),
+                                        SizedBox(height: 10),
+                                        _buildEmailTextField(),
+                                        SizedBox(height: 10),
+                                        _buildPhoneTextField(),
+                                        SizedBox(height: 10),
+                                        _buildPasswordTextField(),
+                                        SizedBox(height: 10),
+                                        _buildButtonSignUp()
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          )),
+                    ],
+                  ),
+                  if(state.status == SignUpStatus.loading)
+                    Center(child: LoadingWidget())
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -230,7 +274,13 @@ class _SignUpContainerState extends State<SignUpContainer> {
       child: Center(
           child: ElevatedButton(
             onPressed: () {
+              String email = _emailController.text.toString();
+              String password = _passController.text.toString();
+              String phone = _phoneController.text.toString();
+              String address = _addressController.text.toString();
+              String name = _displayController.text.toString();
 
+              _bloc.add(SignUpEvent(email: email, name: name, password: password, phone: phone, address: address));
             },
             child: Text("Sign Up"),
           )),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_sale19022022/common/app_constant.dart';
 import 'package:flutter_app_sale19022022/presentation/features/login/login_screen.dart';
 import 'package:flutter_app_sale19022022/presentation/features/sign_up/sign_up_screen.dart';
+import 'package:flutter_app_sale19022022/presentation/features/splash/splash_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
       routes: {
         AppConstant.LOGIN_ROUTE_NAME : (context) => LoginScreen(),
         AppConstant.SIGNUP_ROUTE_NAME : (context) => SignUpScreen(),
+        AppConstant.SPLASH_ROUTE_NAME : (context) => SplashScreen(),
       },
       initialRoute: AppConstant.LOGIN_ROUTE_NAME,
     );

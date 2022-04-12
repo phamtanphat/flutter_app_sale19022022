@@ -26,6 +26,12 @@ extension EmailValidator on String {
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
         .hasMatch(this);
   }
+  bool isMatch(String email2){
+    if(this == email2){
+      return true;
+    }
+    return false;
+  }
 }
 extension Password on String {
   bool isValidPassword() {
