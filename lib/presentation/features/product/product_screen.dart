@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 class ProductScreen extends StatefulWidget {
   const ProductScreen({Key? key}) : super(key: key);
 
@@ -9,6 +10,10 @@ class ProductScreen extends StatefulWidget {
 class _ProductScreenState extends State<ProductScreen> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Product"),
+      ),
+    );
   }
 }

@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
           Navigator.pushReplacementNamed(context, AppConstant.LOGIN_ROUTE_NAME);
         }
       }catch(e){
-
+        Navigator.pushReplacementNamed(context, AppConstant.LOGIN_ROUTE_NAME);
       }
     });
   }

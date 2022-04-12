@@ -75,10 +75,11 @@ class _LoginContainerState extends State<LoginContainer> {
             child: BlocConsumer<LoginBloc,LoginState>(
               listener: (context , state){
                   if(state.status == LoginStatus.loginSuccess){
-                    print("Dag nhap thanh cong");
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Dag nhap thanh cong")));
+                    Navigator.pushReplacementNamed(context, AppConstant.PRODUCT_ROUTE_NAME);
                   }
                   if(state.status == LoginStatus.loginFail){
-                    print(state.message);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message.toString())));
                   }
               },
               builder: (context , state){
