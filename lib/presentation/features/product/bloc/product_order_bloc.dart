@@ -8,31 +8,28 @@ import 'package:flutter_app_sale19022022/presentation/features/product/bloc/prod
 import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ProductBloc extends Bloc<ProductEventBase, ProductStateBase> {
-  late ProductRepository _productRepository;
+class ProductOrderBloc extends Bloc<ProductEventBase, ProductStateBase> {
+  late OrderRepository _orderRepository;
 
-  ProductBloc({required ProductRepository productRepository})
+  ProductOrderBloc({required OrderRepository orderRepository})
       : super(ProductStateInit()) {
-    this._productRepository = productRepository;
+    this._orderRepository = orderRepository;
 
-    on<FetchListProduct>((event, emit) async {
+    on<FetchCart>((event, emit) async {
       emit(ProductStateLoading());
       try {
-        Response response = await _productRepository.fetchProducts();
-        AppResponse<List<ProductResponse>> list =
-            AppResponse.fromJson(response.data, (data) {
-          return List<ProductResponse>.from(
-              response.data["data"].map((e) => ProductResponse.fromJson(e)));
-        });
-        emit(FetchProductsSuccess(list: list.data!));
+        Response response = await _orderRepository.fetchCart();
+        AppResponse<OrderResponse> orderResponse = AppResponse.fromJson(
+            response.data, OrderResponse.formJson);
+        emit(FetchCartSuccess(orderResponse: orderResponse.data!));
       } on DioError catch (e) {
         if (e.response != null) {
-          emit(FetchProductsError(e.response!.data['message'].toString()));
+          emit(FetchCartError(e.response!.data['message'].toString()));
         } else {
-          emit(FetchProductsError(e.toString()));
+          emit(FetchCartError(e.toString()));
         }
       } catch (e) {
-        emit(FetchProductsError(e.toString()));
+        emit(FetchCartError(e.toString()));
       }
     });
   }

@@ -8,6 +8,7 @@ import 'package:flutter_app_sale19022022/data/repository/order_repository.dart';
 import 'package:flutter_app_sale19022022/data/repository/product_repository.dart';
 import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product_bloc.dart';
 import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product_event.dart';
+import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product_order_bloc.dart';
 import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product_state.dart';
 import 'package:flutter_app_sale19022022/presentation/widget/loading_widget.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,10 +37,15 @@ class ProductScreen extends StatelessWidget {
           },
         )
       ],
-      child: BlocProvider<ProductBloc>(
-        create: (context) => ProductBloc(
-            orderRepository: context.read<OrderRepository>(),
-            productRepository: context.read<ProductRepository>()),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+              create: (context) =>
+                  ProductOrderBloc(orderRepository: context.read())),
+          BlocProvider(
+              create: (context) =>
+                  ProductBloc(productRepository: context.read())),
+        ],
         child: ProductContainer(),
       ),
     );
@@ -54,14 +60,16 @@ class ProductContainer extends StatefulWidget {
 }
 
 class _ProductContainerState extends State<ProductContainer> {
-  late ProductBloc _bloc;
+  late ProductBloc _productBloc;
+  late ProductOrderBloc _orderBloc;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _bloc = context.read<ProductBloc>();
-    _bloc.add(FetchListProduct());
-    _bloc.add(FetchCart());
+    _productBloc = context.read<ProductBloc>();
+    _orderBloc = context.read<ProductOrderBloc>();
+    _productBloc.add(FetchListProduct());
+    _orderBloc.add(FetchCart());
   }
 
   @override
@@ -70,47 +78,48 @@ class _ProductContainerState extends State<ProductContainer> {
       appBar: AppBar(
         title: Text("Product"),
         actions: [
-          BlocConsumer<ProductBloc, ProductState>(
+          BlocConsumer<ProductOrderBloc, ProductStateBase>(
             listener: (context, state) {},
             builder: (context, state) {
-              if (state.status == ProductStatus.fetchDataSuccess){
-                print(state.orderResponse!.products!.length.toString());
+              if (state is FetchCartSuccess) {
                 return InkWell(
                   onTap: () {},
                   child: Container(
                     margin: EdgeInsets.only(right: 10, top: 10),
                     child: Badge(
-                      badgeContent: Text("0"),
+                      badgeContent: Text("5"),
                       child: Icon(Icons.shopping_cart_outlined),
                     ),
                   ),
                 );
-              }else{
+              }
+              if (state is FetchCartError) {
                 return Container(
                   margin: EdgeInsets.only(right: 10, top: 10),
-                  child: Icon(Icons.shopping_cart_outlined)
+                  child: Icon(Icons.shopping_cart_outlined),
                 );
               }
+              return SizedBox();
             },
           )
         ],
       ),
-      body: BlocConsumer<ProductBloc, ProductState>(
+      body: BlocConsumer<ProductBloc, ProductStateBase>(
         listener: (context, state) {},
         builder: (context, state) {
           return Stack(
             children: [
-              if (state.status == ProductStatus.fetchDataSuccess)
+              if (state is FetchProductsSuccess)
                 ListView.builder(
-                    itemCount: state.lstProducts!.length,
+                    itemCount: state.list.length,
                     itemBuilder: (context, index) {
-                      return _buildItemFood(state.lstProducts![index]);
+                      return _buildItemFood(state.list[index]);
                     }),
-              if (state.status == ProductStatus.fetchDataFail)
+              if (state is FetchProductsError)
                 Center(
                   child: Text(state.message.toString()),
                 ),
-              if (state.status == ProductStatus.loading)
+              if (state is ProductStateLoading)
                 Center(child: LoadingWidget())
             ],
           );
