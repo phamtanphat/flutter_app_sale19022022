@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_app_sale19022022/common/app_constant.dart';
+import 'package:flutter_app_sale19022022/data/local/share_pref.dart';
 
 class DioClient{
   Dio? _dio;
@@ -17,10 +18,10 @@ class DioClient{
       _dio!.interceptors.add(LogInterceptor(requestBody: true));
       _dio!.interceptors.add(InterceptorsWrapper(
         onRequest: (options, handler) async{
-          // var token = await SharePre.instance.get("token");
-          // if (token != null) {
-          //   options.headers["Authorization"] = "Bearer " + token;
-          // }
+          var token = await SharePre.instance.get("token");
+          if (token != null) {
+            options.headers["Authorization"] = "Bearer " + token;
+          }
           return handler.next(options);
         },
         onResponse: (e, handler) {
