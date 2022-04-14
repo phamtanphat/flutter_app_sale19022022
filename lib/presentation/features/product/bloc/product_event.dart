@@ -9,3 +9,11 @@ class FetchListProduct extends ProductEventBase {
   @override
   List<Object?> get props => [];
 }
+
+class FetchCart extends ProductEventBase {
+
+  FetchCart();
+
+  @override
+  List<Object?> get props => [];
+}

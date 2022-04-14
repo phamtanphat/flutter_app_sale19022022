@@ -2,7 +2,9 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_sale19022022/common/app_constant.dart';
 import 'package:flutter_app_sale19022022/data/model/response/product_reponse.dart';
+import 'package:flutter_app_sale19022022/data/remote/request/order_request.dart';
 import 'package:flutter_app_sale19022022/data/remote/request/product_request.dart';
+import 'package:flutter_app_sale19022022/data/repository/order_repository.dart';
 import 'package:flutter_app_sale19022022/data/repository/product_repository.dart';
 import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product_bloc.dart';
 import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product_event.dart';
@@ -18,17 +20,26 @@ class ProductScreen extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider(create: (context) => ProductRequest()),
+        Provider(create: (context) => OrderRequest()),
         ProxyProvider<ProductRequest, ProductRepository>(
           create: (context) => ProductRepository(),
           update: (context, request, repository) {
             repository!.updateProductRequest(request: request);
             return repository;
           },
+        ),
+        ProxyProvider<OrderRequest, OrderRepository>(
+          create: (context) => OrderRepository(),
+          update: (context, request, repository) {
+            repository!.updateOrderRequest(request: request);
+            return repository;
+          },
         )
       ],
       child: BlocProvider<ProductBloc>(
-        create: (context) =>
-            ProductBloc(productRepository: context.read<ProductRepository>()),
+        create: (context) => ProductBloc(
+            orderRepository: context.read<OrderRepository>(),
+            productRepository: context.read<ProductRepository>()),
         child: ProductContainer(),
       ),
     );
@@ -50,6 +61,7 @@ class _ProductContainerState extends State<ProductContainer> {
     super.didChangeDependencies();
     _bloc = context.read<ProductBloc>();
     _bloc.add(FetchListProduct());
+    _bloc.add(FetchCart());
   }
 
   @override
@@ -58,37 +70,47 @@ class _ProductContainerState extends State<ProductContainer> {
       appBar: AppBar(
         title: Text("Product"),
         actions: [
-          InkWell(
-            onTap: () {},
-            child: Container(
-              margin: EdgeInsets.only(right: 10, top: 10),
-              child: Badge(
-                badgeContent: Text("5"),
-                child: Icon(Icons.shopping_cart_outlined),
-              ),
-            ),
+          BlocConsumer<ProductBloc, ProductState>(
+            listener: (context, state) {},
+            builder: (context, state) {
+              if (state.status == ProductStatus.fetchDataSuccess){
+                print(state.orderResponse!.products!.length.toString());
+                return InkWell(
+                  onTap: () {},
+                  child: Container(
+                    margin: EdgeInsets.only(right: 10, top: 10),
+                    child: Badge(
+                      badgeContent: Text("0"),
+                      child: Icon(Icons.shopping_cart_outlined),
+                    ),
+                  ),
+                );
+              }else{
+                return Container(
+                  margin: EdgeInsets.only(right: 10, top: 10),
+                  child: Icon(Icons.shopping_cart_outlined)
+                );
+              }
+            },
           )
         ],
       ),
-      body: BlocConsumer<ProductBloc,ProductState>(
-        listener: (context, state){
-
-        },
-        builder: (context ,state){
+      body: BlocConsumer<ProductBloc, ProductState>(
+        listener: (context, state) {},
+        builder: (context, state) {
           return Stack(
             children: [
-              if(state.status == ProductStatus.fetchListSuccess)
+              if (state.status == ProductStatus.fetchDataSuccess)
                 ListView.builder(
                     itemCount: state.lstProducts!.length,
                     itemBuilder: (context, index) {
                       return _buildItemFood(state.lstProducts![index]);
                     }),
-              if(state.status == ProductStatus.fetchListFail)
+              if (state.status == ProductStatus.fetchDataFail)
                 Center(
-                  child: Text(state.message.toString()
-                  ),
+                  child: Text(state.message.toString()),
                 ),
-              if(state.status == ProductStatus.loading)
+              if (state.status == ProductStatus.loading)
                 Center(child: LoadingWidget())
             ],
           );
@@ -109,7 +131,7 @@ class _ProductContainerState extends State<ProductContainer> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(5),
-                child: Image.network(AppConstant.BASE_URL+response.img!,
+                child: Image.network(AppConstant.BASE_URL + response.img!,
                     width: 150, height: 120, fit: BoxFit.fill),
               ),
               Expanded(
@@ -128,7 +150,8 @@ class _ProductContainerState extends State<ProductContainer> {
                       ),
                       Text(
                           "Giá : " +
-                              NumberFormat("#,###", "en_US").format(response.price) +
+                              NumberFormat("#,###", "en_US")
+                                  .format(response.price) +
                               " đ",
                           style: TextStyle(fontSize: 12)),
                       ElevatedButton(
