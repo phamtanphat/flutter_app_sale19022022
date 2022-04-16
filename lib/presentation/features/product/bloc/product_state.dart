@@ -11,12 +11,6 @@ class ProductStateInit extends ProductStateBase{
   List<Object?> get props => [];
 
 }
-class ProductStateLoading extends ProductStateBase{
-
-  @override
-  List<Object?> get props => [];
-
-}
 
 class FetchProductsSuccess extends ProductStateBase{
 

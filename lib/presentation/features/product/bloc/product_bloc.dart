@@ -16,7 +16,6 @@ class ProductBloc extends Bloc<ProductEventBase, ProductStateBase> {
     this._productRepository = productRepository;
 
     on<FetchListProduct>((event, emit) async {
-      emit(ProductStateLoading());
       try {
         Response response = await _productRepository.fetchProducts();
         AppResponse<List<ProductResponse>> list =
@@ -35,5 +34,6 @@ class ProductBloc extends Bloc<ProductEventBase, ProductStateBase> {
         emit(FetchProductsError(e.toString()));
       }
     });
+
   }
 }

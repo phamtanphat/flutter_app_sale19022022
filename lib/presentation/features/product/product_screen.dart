@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_sale19022022/common/app_constant.dart';
@@ -62,12 +64,14 @@ class ProductContainer extends StatefulWidget {
 class _ProductContainerState extends State<ProductContainer> {
   late ProductBloc _productBloc;
   late ProductOrderBloc _orderBloc;
+  StreamController<bool> isLoading = StreamController();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _productBloc = context.read<ProductBloc>();
     _orderBloc = context.read<ProductOrderBloc>();
+    isLoading.sink.add(true);
     _productBloc.add(FetchListProduct());
     _orderBloc.add(FetchCart());
   }
@@ -79,7 +83,11 @@ class _ProductContainerState extends State<ProductContainer> {
         title: Text("Product"),
         actions: [
           BlocConsumer<ProductOrderBloc, ProductStateBase>(
-            listener: (context, state) {},
+            listener: (context, state) {
+              if(state is FetchCartSuccess || state is FetchCartError){
+                isLoading.sink.add(false);
+              }
+            },
             builder: (context, state) {
               if (state is FetchCartSuccess) {
                 return InkWell(
@@ -87,25 +95,32 @@ class _ProductContainerState extends State<ProductContainer> {
                   child: Container(
                     margin: EdgeInsets.only(right: 10, top: 10),
                     child: Badge(
-                      badgeContent: Text("5"),
+                      badgeContent: Text(state.orderResponse.products!
+                          .map((element) => element.quantity)
+                          .reduce(
+                        (value, element) {
+                          return value! + element!;
+                        },
+                      ).toString()),
                       child: Icon(Icons.shopping_cart_outlined),
                     ),
                   ),
                 );
               }
-              if (state is FetchCartError) {
-                return Container(
-                  margin: EdgeInsets.only(right: 10, top: 10),
-                  child: Icon(Icons.shopping_cart_outlined),
-                );
-              }
-              return SizedBox();
+              return Container(
+                margin: EdgeInsets.only(right: 10, top: 10),
+                child: Icon(Icons.shopping_cart_outlined),
+              );
             },
           )
         ],
       ),
       body: BlocConsumer<ProductBloc, ProductStateBase>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if(state is FetchProductsSuccess || state is FetchProductsError){
+            isLoading.sink.add(false);
+          }
+        },
         builder: (context, state) {
           return Stack(
             children: [
@@ -119,8 +134,16 @@ class _ProductContainerState extends State<ProductContainer> {
                 Center(
                   child: Text(state.message.toString()),
                 ),
-              if (state is ProductStateLoading)
-                Center(child: LoadingWidget())
+              StreamBuilder<bool>(
+                stream: isLoading.stream,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data == true) {
+                    return LoadingWidget();
+                  }
+                  return SizedBox();
+                },
+                initialData: false,
+              )
             ],
           );
         },
@@ -164,7 +187,11 @@ class _ProductContainerState extends State<ProductContainer> {
                               " đ",
                           style: TextStyle(fontSize: 12)),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          isLoading.sink.add(true);
+                          _orderBloc
+                              .add(AddCart(id_product: response.id.toString()));
+                        },
                         style: ButtonStyle(
                             backgroundColor:
                                 MaterialStateProperty.resolveWith((states) {

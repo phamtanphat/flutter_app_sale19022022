@@ -17,3 +17,13 @@ class FetchCart extends ProductEventBase {
   @override
   List<Object?> get props => [];
 }
+
+class AddCart extends ProductEventBase {
+
+  late String id_product;
+
+  AddCart({required this.id_product});
+
+  @override
+  List<Object?> get props => [id_product];
+}

@@ -16,9 +16,25 @@ class ProductOrderBloc extends Bloc<ProductEventBase, ProductStateBase> {
     this._orderRepository = orderRepository;
 
     on<FetchCart>((event, emit) async {
-      emit(ProductStateLoading());
       try {
         Response response = await _orderRepository.fetchCart();
+        AppResponse<OrderResponse> orderResponse = AppResponse.fromJson(
+            response.data, OrderResponse.formJson);
+        emit(FetchCartSuccess(orderResponse: orderResponse.data!));
+      } on DioError catch (e) {
+        if (e.response != null) {
+          emit(FetchCartError(e.response!.data['message'].toString()));
+        } else {
+          emit(FetchCartError(e.toString()));
+        }
+      } catch (e) {
+        emit(FetchCartError(e.toString()));
+      }
+    });
+    
+    on<AddCart>((event, emit) async{
+      try {
+        Response response = await _orderRepository.addCart(event.id_product);
         AppResponse<OrderResponse> orderResponse = AppResponse.fromJson(
             response.data, OrderResponse.formJson);
         emit(FetchCartSuccess(orderResponse: orderResponse.data!));
