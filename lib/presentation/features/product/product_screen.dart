@@ -91,7 +91,9 @@ class _ProductContainerState extends State<ProductContainer> {
             builder: (context, state) {
               if (state is FetchCartSuccess) {
                 return InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pushNamed(context, AppConstant.CART_ROUTE_NAME);
+                  },
                   child: Container(
                     margin: EdgeInsets.only(right: 10, top: 10),
                     child: Badge(

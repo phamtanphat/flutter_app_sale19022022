@@ -4,6 +4,7 @@ class AppConstant{
   static const String SIGNUP_ROUTE_NAME = "/sign-up";
   static const String SPLASH_ROUTE_NAME = "/splash";
   static const String PRODUCT_ROUTE_NAME = "/product";
+  static const String CART_ROUTE_NAME = "/cart";
 
 
   //Image path
