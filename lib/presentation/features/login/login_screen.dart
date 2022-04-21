@@ -72,13 +72,13 @@ class _LoginContainerState extends State<LoginContainer> {
         body: Container(
           color: Colors.white,
           child: SafeArea(
-            child: BlocConsumer<LoginBloc,LoginState>(
+            child: BlocConsumer<LoginBloc,LoginStateBase>(
               listener: (context , state){
-                  if(state.status == LoginStatus.loginSuccess){
+                  if(state is LoginSuccess){
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Dag nhap thanh cong")));
                     Navigator.pushReplacementNamed(context, AppConstant.PRODUCT_ROUTE_NAME);
                   }
-                  if(state.status == LoginStatus.loginFail){
+                  if(state is LoginFail){
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message.toString())));
                   }
               },
@@ -121,7 +121,7 @@ class _LoginContainerState extends State<LoginContainer> {
                         )
                       ],
                     ),
-                    if(state.status == LoginStatus.loading)
+                    if(state is LoginLoading)
                       Center(child: LoadingWidget())
                   ],
                 );

@@ -8,30 +8,29 @@ import 'package:flutter_app_sale19022022/presentation/features/login/bloc/login_
 import 'package:flutter_app_sale19022022/presentation/features/login/bloc/login_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LoginBloc extends Bloc<LogInEventBase, LoginState> {
+class LoginBloc extends Bloc<LogInEventBase, LoginStateBase> {
   late AuthenticationRepository _repository;
   late SharePre _sharePre;
 
-  LoginBloc({required AuthenticationRepository repository}) : super(LoginState.initial()) {
+  LoginBloc({required AuthenticationRepository repository}) : super(LoginStateInit()) {
     this._repository = repository;
     _sharePre = SharePre.instance;
 
     on<LoginEvent>((event, emit) async {
-      emit(LoginState.loading());
+      emit(LoginLoading());
       try {
-
         Response response = await _repository.loginRepo(event.email, event.password);
         AppResponse<UserResponse> userResponse = AppResponse.fromJson(response.data, UserResponse.formJson);
         _sharePre.set(AppConstant.TOKEN, userResponse.data!.token!);
-        emit(LoginState.loginSuccess(userResponse: userResponse.data));
+        emit(LoginSuccess(userResponse: userResponse.data!));
       } on DioError catch(e){
         if(e.response != null){
-          emit(LoginState.loginFail(message: e.response!.data['message'].toString()));
+          emit(LoginFail(message: e.response!.data['message'].toString()));
         }else{
-          emit(LoginState.loginFail(message: e.toString()));
+          emit(LoginFail(message: e.error.toString()));
         }
       }catch (e) {
-        emit(LoginState.loginFail(message: e.toString()));
+        emit(LoginFail(message: e.toString()));
       }
     });
   }
