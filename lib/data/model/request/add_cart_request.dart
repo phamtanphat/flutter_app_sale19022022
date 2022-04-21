@@ -1,7 +1,7 @@
-class AddCartRequest{
+class AddOrderRequest{
   late String id_product;
 
-  AddCartRequest({required String id_product}){
+  AddOrderRequest({required String id_product}){
     this.id_product = id_product;
   }
 

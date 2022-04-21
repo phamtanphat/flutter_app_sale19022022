@@ -15,7 +15,7 @@ class CartBloc extends Bloc<CartEventBase, CartState> {
     on<FetchCartEvent>((event, emit) async {
       emit(CartState.loading());
       try {
-        Response response = await _orderRepository.fetchCart();
+        Response response = await _orderRepository.fetchOrder();
         AppResponse<OrderResponse> orderResponse =
             AppResponse.fromJson(response.data, OrderResponse.formJson);
         emit(CartState.fetchCartSuccess(orderResponse: orderResponse.data!));

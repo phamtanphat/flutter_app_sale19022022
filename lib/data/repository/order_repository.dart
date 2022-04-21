@@ -11,11 +11,11 @@ class OrderRepository {
     this._request = request;
   }
 
-  Future<Response> fetchCart() {
-    return _request.fetchCart();
+  Future<Response> fetchOrder() {
+    return _request.fetchOrder();
   }
 
-  Future<Response> addCart(String id_product) {
-    return _request.addCart(AddCartRequest(id_product: id_product));
+  Future<Response> addOrder(String id_product) {
+    return _request.addOrder(AddOrderRequest(id_product: id_product));
   }
 }

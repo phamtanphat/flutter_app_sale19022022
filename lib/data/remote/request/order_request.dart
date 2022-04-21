@@ -9,11 +9,11 @@ class OrderRequest {
     _dio = DioClient.instance.dio;
   }
 
-  Future<Response> fetchCart() {
+  Future<Response> fetchOrder() {
     return _dio.post("order");
   }
 
-  Future<Response> addCart(AddCartRequest addCartRequest) {
+  Future<Response> addOrder(AddOrderRequest addCartRequest) {
     return _dio.post("order/add-to-cart", data: addCartRequest.toJson());
   }
 }

@@ -8,10 +8,12 @@ import 'package:flutter_app_sale19022022/data/remote/request/order_request.dart'
 import 'package:flutter_app_sale19022022/data/remote/request/product_request.dart';
 import 'package:flutter_app_sale19022022/data/repository/order_repository.dart';
 import 'package:flutter_app_sale19022022/data/repository/product_repository.dart';
-import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product_bloc.dart';
-import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product_event.dart';
-import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product_order_bloc.dart';
-import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product_state.dart';
+import 'package:flutter_app_sale19022022/presentation/features/product/bloc/order/order_bloc.dart';
+import 'package:flutter_app_sale19022022/presentation/features/product/bloc/order/order_event.dart';
+import 'package:flutter_app_sale19022022/presentation/features/product/bloc/order/order_state.dart';
+import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product/product_bloc.dart';
+import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product/product_event.dart';
+import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product/product_state.dart';
 import 'package:flutter_app_sale19022022/presentation/widget/loading_widget.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -43,7 +45,7 @@ class ProductScreen extends StatelessWidget {
         providers: [
           BlocProvider(
               create: (context) =>
-                  ProductOrderBloc(orderRepository: context.read())),
+                  OrderBloc(orderRepository: context.read())),
           BlocProvider(
               create: (context) =>
                   ProductBloc(productRepository: context.read())),
@@ -63,17 +65,17 @@ class ProductContainer extends StatefulWidget {
 
 class _ProductContainerState extends State<ProductContainer> {
   late ProductBloc _productBloc;
-  late ProductOrderBloc _orderBloc;
+  late OrderBloc _orderBloc;
   StreamController<bool> isLoading = StreamController();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _productBloc = context.read<ProductBloc>();
-    _orderBloc = context.read<ProductOrderBloc>();
+    _orderBloc = context.read<OrderBloc>();
     isLoading.sink.add(true);
     _productBloc.add(FetchListProduct());
-    _orderBloc.add(FetchCart());
+    _orderBloc.add(FetchOrder());
   }
 
   @override
@@ -82,14 +84,14 @@ class _ProductContainerState extends State<ProductContainer> {
       appBar: AppBar(
         title: Text("Product"),
         actions: [
-          BlocConsumer<ProductOrderBloc, ProductStateBase>(
+          BlocConsumer<OrderBloc, OrderStateBase>(
             listener: (context, state) {
-              if(state is FetchCartSuccess || state is FetchCartError){
+              if(state is AddOrderSuccess || state is AddOrderSuccess || state is FetchOrderSuccess || state is FetchOrderFail){
                 isLoading.sink.add(false);
               }
             },
             builder: (context, state) {
-              if (state is FetchCartSuccess) {
+              if (state is AddOrderSuccess || state is FetchOrderSuccess) {
                 return InkWell(
                   onTap: () {
                     Navigator.pushNamed(context, AppConstant.CART_ROUTE_NAME);
@@ -97,7 +99,7 @@ class _ProductContainerState extends State<ProductContainer> {
                   child: Container(
                     margin: EdgeInsets.only(right: 10, top: 10),
                     child: Badge(
-                      badgeContent: Text(state.orderResponse.products!
+                      badgeContent: Text(state.orderResponse!.products!
                           .map((element) => element.quantity)
                           .reduce(
                         (value, element) {
@@ -192,7 +194,7 @@ class _ProductContainerState extends State<ProductContainer> {
                         onPressed: () {
                           isLoading.sink.add(true);
                           _orderBloc
-                              .add(AddCart(id_product: response.id.toString()));
+                              .add(AddOrder(id_product: response.id.toString()));
                         },
                         style: ButtonStyle(
                             backgroundColor:

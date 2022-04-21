@@ -35,27 +35,3 @@ class FetchProductsError extends ProductStateBase{
   List<Object?> get props => [message];
 
 }
-
-class FetchCartSuccess extends ProductStateBase{
-
-  late OrderResponse orderResponse;
-
-  FetchCartSuccess({required this.orderResponse});
-
-  @override
-  List<Object?> get props => [orderResponse];
-
-}
-
-class FetchCartError extends ProductStateBase{
-
-  late String message;
-
-  FetchCartError(String message){
-    this.message = message;
-  }
-
-  @override
-  List<Object?> get props => [message];
-
-}

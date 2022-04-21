@@ -1,11 +1,11 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
-import 'package:flutter_app_sale19022022/data/model/response/order_response.dart';
 import 'package:flutter_app_sale19022022/data/model/response/product_reponse.dart';
 import 'package:flutter_app_sale19022022/data/remote/response/app_response.dart';
-import 'package:flutter_app_sale19022022/data/repository/order_repository.dart';
 import 'package:flutter_app_sale19022022/data/repository/product_repository.dart';
-import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product_event.dart';
-import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product_state.dart';
+import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product/product_event.dart';
+import 'package:flutter_app_sale19022022/presentation/features/product/bloc/product/product_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProductBloc extends Bloc<ProductEventBase, ProductStateBase> {
