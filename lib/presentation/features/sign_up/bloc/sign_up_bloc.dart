@@ -6,25 +6,25 @@ import 'package:flutter_app_sale19022022/presentation/features/sign_up/bloc/sign
 import 'package:flutter_app_sale19022022/presentation/features/sign_up/bloc/sign_up_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SignUpBloc extends Bloc<SignUpEventBase,SignUpState>{
+class SignUpBloc extends Bloc<SignUpEventBase,SignUpStateBase>{
   late AuthenticationRepository _repository;
-  SignUpBloc({required AuthenticationRepository repository}) : super(SignUpState.initial()){
+  SignUpBloc({required AuthenticationRepository repository}) : super(SignUpStateInit()){
     this._repository = repository;
 
     on<SignUpEvent>((event, emit) async {
-      emit(SignUpState.loading());
+      emit(SignUpStateLoading());
       try {
         Response response = await _repository.signUpRepo(event.email,event.password,event.address,event.name,event.phone);
         AppResponse<UserResponse> userResponse = AppResponse.fromJson(response.data, UserResponse.formJson);
-        emit(SignUpState.success(userResponse: userResponse.data));
+        emit(SignUpStateSuccess(userResponse: userResponse.data!));
       } on DioError catch(e){
         if(e.response != null){
-          emit(SignUpState.fail(message: e.response!.data['message'].toString()));
+          emit(SignUpStateFail(message: e.response!.data['message'].toString()));
         }else{
-          emit(SignUpState.fail(message: e.error.toString()));
+          emit(SignUpStateFail(message: e.error.toString()));
         }
       }catch (e) {
-        emit(SignUpState.fail(message: e.toString()));
+        emit(SignUpStateFail(message: e.toString()));
       }
     });
   }

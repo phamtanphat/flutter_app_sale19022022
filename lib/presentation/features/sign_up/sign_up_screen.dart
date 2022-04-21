@@ -61,13 +61,13 @@ class _SignUpContainerState extends State<SignUpContainer> {
       appBar: AppBar(
         title: Text("Sign Up"),
       ),
-      body: BlocConsumer<SignUpBloc,SignUpState>(
+      body: BlocConsumer<SignUpBloc,SignUpStateBase>(
         listener: (context , state){
-          if(state.status == SignUpStatus.success){
+          if(state is SignUpStateSuccess){
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Dang ky thanh cong")));
             Navigator.pop(context);
           }
-          if (state.status == SignUpStatus.fail){
+          if (state is SignUpStateFail){
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message.toString())));
           }
         },
@@ -116,7 +116,7 @@ class _SignUpContainerState extends State<SignUpContainer> {
                           )),
                     ],
                   ),
-                  if(state.status == SignUpStatus.loading)
+                  if(state is SignUpStateLoading)
                     Center(child: LoadingWidget())
                 ],
               ),

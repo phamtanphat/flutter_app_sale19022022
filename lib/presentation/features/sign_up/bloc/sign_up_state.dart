@@ -1,34 +1,35 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_app_sale19022022/data/model/response/user_response.dart';
 
-enum SignUpStatus { initial, loading, success, fail }
+abstract class SignUpStateBase extends Equatable{
 
-class SignUpState extends Equatable {
-  SignUpStatus? status;
-  UserResponse? userResponse;
-  String? message = null;
+}
 
-  SignUpState._({this.status, this.userResponse, this.message});
+class SignUpStateInit extends SignUpStateBase{
+  @override
+  // TODO: implement props
+  List<Object?> get props => [];
+}
 
-  SignUpState copyWith(
-      {SignUpStatus? status, UserResponse? response, String? message}) {
-    return SignUpState._(
-      status: status ?? this.status,
-      userResponse: response ?? this.userResponse,
-      message: message ?? this.message,
-    );
-  }
+class SignUpStateLoading extends SignUpStateBase{
+  @override
+  List<Object?> get props => [];
+}
 
-  SignUpState.initial() : this._(status: SignUpStatus.initial);
+class SignUpStateSuccess extends SignUpStateBase{
+  late UserResponse userResponse;
 
-  SignUpState.loading() : this._(status: SignUpStatus.loading);
-
-  SignUpState.success({required UserResponse? userResponse})
-      : this._(status: SignUpStatus.success, userResponse: userResponse);
-
-  SignUpState.fail({required String? message})
-      : this._(status: SignUpStatus.fail, message: message);
+  SignUpStateSuccess({required this.userResponse});
 
   @override
-  List<Object?> get props => [status, userResponse, message];
+  List<Object?> get props => [userResponse];
+}
+
+class SignUpStateFail extends SignUpStateBase{
+  late String message;
+
+  SignUpStateFail({required this.message});
+
+  @override
+  List<Object?> get props => [message];
 }
